@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1055202103303",
+    "project_id": "masemanager-44c9b",
+    "storage_bucket": "masemanager-44c9b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1055202103303:android:3e0aebffc2d760fc6a5aa2",
+        "android_client_info": {
+          "package_name": "com.example.text_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcEoJl7_2IfYsfjK71jqrU7cYfCyVEc-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
