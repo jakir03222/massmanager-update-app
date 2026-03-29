@@ -1,39 +1,50 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../core/constants/app_constants.dart';
-
 class BazarModel {
-  const BazarModel({
+  final String id;
+  final String userId;
+  final String buyerName;
+  final DateTime date;
+  final num amount;
+  final String description;
+  final String? note;
+  final DateTime createdAt;
+
+  BazarModel({
     required this.id,
-    required this.title,
+    required this.userId,
+    required this.buyerName,
+    required this.date,
     required this.amount,
-    this.bazarDate,
-    this.memberId,
-    this.memberName,
+    required this.description,
+    this.note,
     required this.createdAt,
   });
 
-  final String id;
-  final String title;
-  final double amount;
-  final DateTime? bazarDate;
-  final String? memberId;
-  final String? memberName;
-  final DateTime createdAt;
-
-  factory BazarModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
-    final createdAt = data[AppConstants.fieldBazarCreatedAt];
-    final amount = data[AppConstants.fieldBazarAmount];
-    final bazarDate = data[AppConstants.fieldBazarDate];
+  factory BazarModel.fromMap(Map<String, dynamic> map, String id) {
     return BazarModel(
-      id: doc.id,
-      title: data[AppConstants.fieldBazarTitle] as String? ?? '',
-      amount: (amount is num) ? amount.toDouble() : 0,
-      bazarDate: bazarDate is Timestamp ? bazarDate.toDate() : null,
-      memberId: data[AppConstants.fieldBazarMemberId] as String?,
-      memberName: data[AppConstants.fieldBazarMemberName] as String?,
-      createdAt: createdAt is Timestamp ? createdAt.toDate() : DateTime.now(),
+      id: id,
+      userId: map['userId'] ?? '',
+      buyerName: map['buyerName'] ?? '',
+      date: map['date'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['date'])
+          : DateTime.now(),
+      amount: map['amount'] ?? 0,
+      description: map['description'] ?? '',
+      note: map['note'],
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'])
+          : DateTime.now(),
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'userId': userId,
+      'buyerName': buyerName,
+      'date': date.millisecondsSinceEpoch,
+      'amount': amount,
+      'description': description,
+      'note': note,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+    };
   }
 }

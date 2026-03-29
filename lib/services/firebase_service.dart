@@ -1,29 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
-
-import '../core/constants/app_constants.dart';
 import '../models/bazar_model.dart';
 import '../models/meal_model.dart';
 import '../models/member_model.dart';
+import 'package:flutter/foundation.dart';
 
 class FirebaseService {
   FirebaseService._();
   static final FirebaseService _instance = FirebaseService._();
   static FirebaseService get instance => _instance;
 
-  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
-  CollectionReference<Map<String, dynamic>> get _users =>
-      _firestore.collection(AppConstants.collectionUsers);
-  DocumentReference<Map<String, dynamic>> _userDoc(String uid) => _users.doc(uid);
-  CollectionReference<Map<String, dynamic>> _membersForUser(String uid) =>
-      _users.doc(uid).collection(AppConstants.subcollectionMembers);
-  CollectionReference<Map<String, dynamic>> _bazarForUser(String uid) =>
-      _users.doc(uid).collection(AppConstants.subcollectionBazar);
-  CollectionReference<Map<String, dynamic>> _mealsForUser(String uid) =>
-      _users.doc(uid).collection(AppConstants.subcollectionMeals);
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> upsertLoginUser(User user) async {
+  // Uses root collections instead of subcollections for simplicity, as per prompt's flat structure recommendation
+  // but adding userId to each document to filter.
+  CollectionReference<Map<String, dynamic>> get _users =>
+      _firestore.collection('users');
+  CollectionReference<Map<String, dynamic>> get _members =>
+      _firestore.collection('members');
+  CollectionReference<Map<String, dynamic>> get _meals =>
+      _firestore.collection('meals');
+  CollectionReference<Map<String, dynamic>> get _bazar =>
+      _firestore.collection('bazar');
+
+  Future<void> upsertLoginUser(dynamic user) async {
     try {
       final doc = _users.doc(user.uid);
       final now = FieldValue.serverTimestamp();
@@ -31,132 +30,61 @@ class FirebaseService {
       final existingData = existing.data();
       final keepCreatedAt = existing.exists &&
           existingData != null &&
-          existingData.containsKey(AppConstants.fieldCreatedAtUser);
+          existingData.containsKey('createdAt');
       await doc.set({
-        AppConstants.fieldEmail: user.email ?? '',
-        AppConstants.fieldDisplayName: user.displayName,
-        AppConstants.fieldPhotoUrl: user.photoURL,
-        AppConstants.fieldCreatedAtUser:
-            keepCreatedAt ? existingData[AppConstants.fieldCreatedAtUser] : now,
-        AppConstants.fieldLastLoginAt: now,
+        'email': user.email ?? '',
+        'displayName': user.displayName,
+        'photoUrl': user.photoURL,
+        'createdAt': keepCreatedAt ? existingData['createdAt'] : now,
+        'lastLoginAt': now,
       }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Failed to save user to Firestore: $e');
     }
   }
 
-  Stream<Map<String, dynamic>> watchBills(String uid) {
-    return _userDoc(uid).snapshots().map((doc) => doc.data() ?? <String, dynamic>{});
-  }
-
-  Future<void> upsertBills(
-    String uid, {
-    double? bashaVara,
-    double? khalaBill,
-    double? currentBill,
-    double? gasBill,
-    double? wifiBill,
-    double? otherBill,
-  }) async {
-    final data = <String, dynamic>{
-      if (bashaVara != null) AppConstants.fieldBillBashaVara: bashaVara,
-      if (khalaBill != null) AppConstants.fieldBillKhala: khalaBill,
-      if (currentBill != null) AppConstants.fieldBillCurrent: currentBill,
-      if (gasBill != null) AppConstants.fieldBillGas: gasBill,
-      if (wifiBill != null) AppConstants.fieldBillWifi: wifiBill,
-      if (otherBill != null) AppConstants.fieldBillOther: otherBill,
-      AppConstants.fieldBillsUpdatedAt: FieldValue.serverTimestamp(),
-    };
-    await _userDoc(uid).set(data, SetOptions(merge: true));
-  }
-
-  Stream<List<MemberModel>> watchMembers(String uid) {
-    return _membersForUser(uid)
-        .orderBy(AppConstants.fieldMemberCreatedAt, descending: true)
+  // Members
+  Stream<List<MemberModel>> getMembersStream(String userId) {
+    return _members
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => MemberModel.fromFirestore(d)).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) => MemberModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 
-  Future<void> addMember(String uid, String name, String phone, String password) async {
-    await _membersForUser(uid).add({
-      AppConstants.fieldMemberName: name.trim(),
-      AppConstants.fieldMemberPhone: phone.trim(),
-      AppConstants.fieldMemberPassword: password,
-      AppConstants.fieldMemberCreatedAt: FieldValue.serverTimestamp(),
-    });
+  Future<void> addMember(MemberModel member) async {
+    await _members.add(member.toMap());
   }
 
-  Future<void> deleteMember(String uid, String id) async {
-    await _membersForUser(uid).doc(id).delete();
-  }
-
-  Stream<List<BazarModel>> watchBazar(String uid) {
-    return _bazarForUser(uid)
-        .orderBy(AppConstants.fieldBazarCreatedAt, descending: true)
+  // Meals
+  Stream<List<MealModel>> getMealsStream(String userId) {
+    return _meals
+        .where('userId', isEqualTo: userId)
+        .orderBy('date', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => BazarModel.fromFirestore(d)).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) => MealModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 
-  Future<void> addBazar(
-    String uid,
-    String title,
-    double amount, {
-    DateTime? bazarDate,
-    String? memberId,
-    String? memberName,
-  }) async {
-    final data = <String, dynamic>{
-      AppConstants.fieldBazarTitle: title.trim(),
-      AppConstants.fieldBazarAmount: amount,
-      AppConstants.fieldBazarCreatedAt: FieldValue.serverTimestamp(),
-    };
-    if (bazarDate != null) {
-      data[AppConstants.fieldBazarDate] = Timestamp.fromDate(bazarDate);
-    }
-    if (memberId != null && memberId.isNotEmpty) {
-      data[AppConstants.fieldBazarMemberId] = memberId;
-    }
-    if (memberName != null && memberName.isNotEmpty) {
-      data[AppConstants.fieldBazarMemberName] = memberName;
-    }
-    await _bazarForUser(uid).add(data);
+  Future<void> addMeal(MealModel meal) async {
+    await _meals.add(meal.toMap());
   }
 
-  Future<void> deleteBazar(String uid, String id) async {
-    await _bazarForUser(uid).doc(id).delete();
-  }
-
-  Stream<List<MealModel>> watchMeals(String uid) {
-    return _mealsForUser(uid)
-        .orderBy(AppConstants.fieldMealCreatedAt, descending: true)
+  // Bazar
+  Stream<List<BazarModel>> getBazarStream(String userId) {
+    return _bazar
+        .where('userId', isEqualTo: userId)
+        .orderBy('date', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => MealModel.fromFirestore(d)).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) => BazarModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 
-  Future<void> addMeal(
-    String uid,
-    DateTime mealDate,
-    String type, {
-    String? memberId,
-    String? memberName,
-    required double rate,
-  }) async {
-    await _mealsForUser(uid).add({
-      AppConstants.fieldMealDate: Timestamp.fromDate(mealDate),
-      AppConstants.fieldMealType: type,
-      AppConstants.fieldMealRate: rate,
-      AppConstants.fieldMealCreatedAt: FieldValue.serverTimestamp(),
-      if (memberId != null && memberId.isNotEmpty)
-        AppConstants.fieldMealMemberId: memberId,
-      if (memberName != null && memberName.isNotEmpty)
-        AppConstants.fieldMealMemberName: memberName,
-    });
-  }
-
-  Future<void> deleteMeal(String uid, String id) async {
-    await _mealsForUser(uid).doc(id).delete();
+  Future<void> addBazar(BazarModel bazar) async {
+    await _bazar.add(bazar.toMap());
   }
 }

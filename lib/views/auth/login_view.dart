@@ -85,10 +85,16 @@ class _LoginViewState extends State<LoginView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 48),
-                    Icon(
-                      Icons.lock_outline,
-                      size: 72,
-                      color: Theme.of(context).colorScheme.primary,
+                    const Text(
+                      'Mess Hisab',
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.blue),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Track daily meals and expenses easily',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
                     Text(
