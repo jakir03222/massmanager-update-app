@@ -58,7 +58,7 @@ class LoginView extends GetView<AuthController> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Mess Management System',
+                        AppStrings.messManagement,
                         style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
                       ),
                     ],
@@ -83,7 +83,7 @@ class LoginView extends GetView<AuthController> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Welcome Back',
+                            AppStrings.welcomeBack,
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -92,7 +92,7 @@ class LoginView extends GetView<AuthController> {
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Sign in to continue',
+                            AppStrings.signInToContinue,
                             style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                           ),
                           const SizedBox(height: 28),
@@ -159,7 +159,7 @@ class LoginView extends GetView<AuthController> {
                           const SizedBox(height: 16),
                           Center(
                             child: Text(
-                              'Authorized access only',
+                              AppStrings.authorizedOnly,
                               style: TextStyle(
                                 color: AppColors.textSecondary.withOpacity(0.6),
                                 fontSize: 12,

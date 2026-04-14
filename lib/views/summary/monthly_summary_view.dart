@@ -19,7 +19,7 @@ class MonthlySummaryView extends GetView<SummaryController> {
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: () => Get.toNamed(AppRoutes.reports),
-            tooltip: 'Export PDF',
+            tooltip: AppStrings.exportPdf,
           ),
         ],
       ),
@@ -62,7 +62,7 @@ class MonthlySummaryView extends GetView<SummaryController> {
 
               if (summary.totalMembers == 0) {
                 return EmptyState(
-                  message: 'No data for ${summary.monthName} ${summary.year}',
+                  message: '${summary.monthName} ${summary.year} এর কোনো তথ্য নেই',
                   icon: Icons.bar_chart_outlined,
                 );
               }
@@ -94,7 +94,7 @@ class MonthlySummaryView extends GetView<SummaryController> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${summary.totalMembers} Members',
+                            '${summary.totalMembers} সদস্য',
                             style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
                           ),
                           const SizedBox(height: 12),
@@ -102,19 +102,19 @@ class MonthlySummaryView extends GetView<SummaryController> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               StatChip(
-                                label: 'Receivable',
+                                label: AppStrings.receivable,
                                 count: '${summary.receivableCount}',
                                 color: AppColors.receivable,
                               ),
                               const SizedBox(width: 8),
                               StatChip(
-                                label: 'Payable',
+                                label: AppStrings.payable,
                                 count: '${summary.payableCount}',
                                 color: AppColors.payable,
                               ),
                               const SizedBox(width: 8),
                               StatChip(
-                                label: 'Settled',
+                                label: AppStrings.settled,
                                 count: '${summary.settledCount}',
                                 color: AppColors.settled,
                               ),
@@ -135,37 +135,37 @@ class MonthlySummaryView extends GetView<SummaryController> {
                       childAspectRatio: 1.4,
                       children: [
                         SummaryCard(
-                          title: 'Total Deposit',
+                          title: AppStrings.totalDeposit,
                           value: AppUtils.formatCurrency(summary.totalDeposit),
                           icon: Icons.account_balance_wallet_outlined,
                           color: AppColors.success,
                         ),
                         SummaryCard(
-                          title: 'Meal Cost',
+                          title: AppStrings.mealCost,
                           value: AppUtils.formatCurrency(summary.totalCostOfMeal),
                           icon: Icons.restaurant_outlined,
                           color: AppColors.accent,
                         ),
                         SummaryCard(
-                          title: 'Cook Cost',
+                          title: AppStrings.cookCost,
                           value: AppUtils.formatCurrency(summary.totalCookCost),
                           icon: Icons.soup_kitchen_outlined,
                           color: AppColors.warning,
                         ),
                         SummaryCard(
-                          title: 'Eid Bonus',
+                          title: AppStrings.eidBonus,
                           value: AppUtils.formatCurrency(summary.totalEidBonus),
                           icon: Icons.card_giftcard_outlined,
                           color: Colors.purple,
                         ),
                         SummaryCard(
-                          title: 'Total Due',
+                          title: AppStrings.totalDue,
                           value: AppUtils.formatCurrency(summary.totalDue),
                           icon: Icons.receipt_outlined,
                           color: AppColors.error,
                         ),
                         SummaryCard(
-                          title: 'Total Cost',
+                          title: AppStrings.totalCost,
                           value: AppUtils.formatCurrency(summary.totalCost),
                           icon: Icons.payments_outlined,
                           color: AppColors.primaryDark,
@@ -187,7 +187,7 @@ class MonthlySummaryView extends GetView<SummaryController> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'NET BALANCE',
+                                    'নিট ব্যালেন্স',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
@@ -208,8 +208,8 @@ class MonthlySummaryView extends GetView<SummaryController> {
                                   ),
                                   Text(
                                     summary.totalNetAmount >= 0
-                                        ? 'Surplus (Receivable)'
-                                        : 'Deficit (Payable)',
+                                        ? AppStrings.surplus
+                                        : AppStrings.deficit,
                                     style: TextStyle(
                                       color: summary.totalNetAmount >= 0
                                           ? AppColors.receivable
@@ -242,7 +242,7 @@ class MonthlySummaryView extends GetView<SummaryController> {
 
                     // Member breakdown header
                     const Text(
-                      'MEMBER BREAKDOWN',
+                      'সদস্যওয়ারী বিবরণ',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -263,7 +263,7 @@ class MonthlySummaryView extends GetView<SummaryController> {
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(
-                            'Deposit: ${AppUtils.formatCurrency(s.depositMoney)}  |  Cost: ${AppUtils.formatCurrency(s.totalCost)}',
+                            'জমা: ${AppUtils.formatCurrency(s.depositMoney)}  |  খরচ: ${AppUtils.formatCurrency(s.totalCost)}',
                             style: const TextStyle(fontSize: 12),
                           ),
                           trailing: Column(

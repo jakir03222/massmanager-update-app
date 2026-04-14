@@ -48,7 +48,7 @@ class StatementController extends GetxController {
         statements.value = data;
         _filterStatements();
       },
-      onError: (e) => AppUtils.showError('Failed to load statements: $e'),
+      onError: (e) => AppUtils.showError('বিবরণী লোড করতে সমস্যা হয়েছে।'),
     );
   }
 
@@ -56,7 +56,7 @@ class StatementController extends GetxController {
     try {
       members.value = await _firestoreService.getMembers();
     } catch (e) {
-      AppUtils.showError('Failed to load members: $e');
+      AppUtils.showError('সদস্য লোড করতে সমস্যা হয়েছে।');
     }
   }
 
@@ -112,7 +112,7 @@ class StatementController extends GetxController {
       year: year,
     );
     if (exists) {
-      AppUtils.showError('A statement for this member already exists for ${AppConstants.months[month - 1]} $year');
+      AppUtils.showError('${AppConstants.months[month - 1]} $year এর জন্য এই সদস্যের বিবরণী আগেই যোগ করা আছে।');
       return false;
     }
 
@@ -131,10 +131,10 @@ class StatementController extends GetxController {
         remarks: remarks,
       );
       await _firestoreService.addStatement(statement);
-      AppUtils.showSuccess('Statement added successfully');
+      AppUtils.showSuccess(AppStrings.statementAdded);
       return true;
     } catch (e) {
-      AppUtils.showError('Failed to add statement: $e');
+      AppUtils.showError('বিবরণী যোগ করতে সমস্যা হয়েছে।');
       return false;
     } finally {
       isLoading.value = false;
@@ -161,7 +161,7 @@ class StatementController extends GetxController {
       excludeId: existing.id,
     );
     if (exists) {
-      AppUtils.showError('A statement for this member already exists for ${AppConstants.months[month - 1]} $year');
+      AppUtils.showError('${AppConstants.months[month - 1]} $year এর জন্য এই সদস্যের বিবরণী আগেই যোগ করা আছে।');
       return false;
     }
 
@@ -180,10 +180,10 @@ class StatementController extends GetxController {
         remarks: remarks,
       );
       await _firestoreService.updateStatement(updated);
-      AppUtils.showSuccess('Statement updated successfully');
+      AppUtils.showSuccess(AppStrings.statementUpdated);
       return true;
     } catch (e) {
-      AppUtils.showError('Failed to update statement: $e');
+      AppUtils.showError('বিবরণী আপডেট করতে সমস্যা হয়েছে।');
       return false;
     } finally {
       isLoading.value = false;
@@ -192,17 +192,17 @@ class StatementController extends GetxController {
 
   Future<void> deleteStatement(MonthlyStatementModel statement) async {
     final confirmed = await AppUtils.showConfirmDialog(
-      title: 'Delete Statement',
-      message: 'Delete statement for "${statement.memberName}"? This cannot be undone.',
+      title: AppStrings.confirmDelete,
+      message: '"${statement.memberName}" এর বিবরণী মুছে ফেলবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।',
     );
     if (!confirmed) return;
 
     isLoading.value = true;
     try {
       await _firestoreService.deleteStatement(statement.id);
-      AppUtils.showSuccess('Statement deleted');
+      AppUtils.showSuccess(AppStrings.statementDeleted);
     } catch (e) {
-      AppUtils.showError('Failed to delete statement: $e');
+      AppUtils.showError('বিবরণী মুছতে সমস্যা হয়েছে।');
     } finally {
       isLoading.value = false;
     }

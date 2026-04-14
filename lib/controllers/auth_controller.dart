@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../routes/app_routes.dart';
 import '../services/auth_service.dart';
 import '../core/utils/app_utils.dart';
+import '../core/constants/app_constants.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
@@ -24,7 +25,7 @@ class AuthController extends GetxController {
 
   Future<void> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      AppUtils.showError('Please fill in all fields');
+      AppUtils.showError(AppStrings.pleaseFillAll);
       return;
     }
 
@@ -35,7 +36,7 @@ class AuthController extends GetxController {
     } on FirebaseAuthException catch (e) {
       AppUtils.showError(_authErrorMessage(e.code));
     } catch (e) {
-      AppUtils.showError('Login failed. Please try again.');
+      AppUtils.showError('লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
     } finally {
       isLoading.value = false;
     }
@@ -43,9 +44,9 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     final confirmed = await AppUtils.showConfirmDialog(
-      title: 'Logout',
-      message: 'Are you sure you want to logout?',
-      confirmText: 'Logout',
+      title: AppStrings.logoutConfirmTitle,
+      message: AppStrings.logoutConfirmMessage,
+      confirmText: AppStrings.logout,
       confirmColor: Get.theme.colorScheme.primary,
     );
     if (!confirmed) return;
@@ -57,19 +58,19 @@ class AuthController extends GetxController {
   String _authErrorMessage(String code) {
     switch (code) {
       case 'user-not-found':
-        return 'No account found with this email.';
+        return 'এই ইমেইলে কোনো অ্যাকাউন্ট পাওয়া যায়নি।';
       case 'wrong-password':
-        return 'Incorrect password.';
+        return 'পাসওয়ার্ড সঠিক নয়।';
       case 'invalid-email':
-        return 'Invalid email address.';
+        return 'ইমেইল ঠিকানা সঠিক নয়।';
       case 'user-disabled':
-        return 'This account has been disabled.';
+        return 'এই অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে।';
       case 'too-many-requests':
-        return 'Too many failed attempts. Try again later.';
+        return 'বারবার ব্যর্থ প্রচেষ্টা। কিছুক্ষণ পরে আবার চেষ্টা করুন।';
       case 'invalid-credential':
-        return 'Invalid email or password.';
+        return 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।';
       default:
-        return 'Authentication failed. Please try again.';
+        return 'লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
     }
   }
 }

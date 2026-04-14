@@ -20,30 +20,41 @@ class AppUtils {
   }
 
   static Color statusColor(String status) {
-    switch (status) {
-      case AppStrings.receivable:
-        return AppColors.receivable;
-      case AppStrings.payable:
-        return AppColors.payable;
-      default:
-        return AppColors.settled;
+    if (status == AppStrings.receivable || status == 'Receivable') {
+      return AppColors.receivable;
     }
+    if (status == AppStrings.payable || status == 'Payable') {
+      return AppColors.payable;
+    }
+    return AppColors.settled;
   }
 
   static Color statusBgColor(String status) {
+    if (status == AppStrings.receivable || status == 'Receivable') {
+      return const Color(0xFFE8F5E9);
+    }
+    if (status == AppStrings.payable || status == 'Payable') {
+      return const Color(0xFFFFEBEE);
+    }
+    return const Color(0xFFE3F2FD);
+  }
+
+  static String localizeStatus(String status) {
     switch (status) {
-      case AppStrings.receivable:
-        return const Color(0xFFE8F5E9);
-      case AppStrings.payable:
-        return const Color(0xFFFFEBEE);
+      case 'Receivable':
+        return AppStrings.receivable;
+      case 'Payable':
+        return AppStrings.payable;
+      case 'Settled':
+        return AppStrings.settled;
       default:
-        return const Color(0xFFE3F2FD);
+        return status;
     }
   }
 
   static void showSuccess(String message) {
     Get.snackbar(
-      'Success',
+      'সফল ✓',
       message,
       backgroundColor: AppColors.success,
       colorText: Colors.white,
@@ -56,7 +67,7 @@ class AppUtils {
 
   static void showError(String message) {
     Get.snackbar(
-      'Error',
+      'ত্রুটি !',
       message,
       backgroundColor: AppColors.error,
       colorText: Colors.white,
@@ -69,7 +80,7 @@ class AppUtils {
 
   static void showWarning(String message) {
     Get.snackbar(
-      'Warning',
+      'সতর্কতা',
       message,
       backgroundColor: AppColors.warning,
       colorText: Colors.white,
@@ -83,7 +94,7 @@ class AppUtils {
   static Future<bool> showConfirmDialog({
     required String title,
     required String message,
-    String confirmText = 'Delete',
+    String confirmText = 'মুছুন',
     Color confirmColor = AppColors.error,
   }) async {
     final result = await Get.dialog<bool>(
@@ -94,7 +105,7 @@ class AppUtils {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel'),
+            child: const Text('বাতিল'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: confirmColor),

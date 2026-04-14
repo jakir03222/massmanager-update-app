@@ -55,7 +55,7 @@ class AddEditMemberView extends GetView<MemberController> {
                     const SizedBox(height: 32),
 
                     const Text(
-                      'Member Information',
+                      AppStrings.memberInfo,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -72,7 +72,7 @@ class AddEditMemberView extends GetView<MemberController> {
                       prefixIcon: const Icon(Icons.person_outline),
                       validator: (v) {
                         if (v == null || v.trim().isEmpty) return AppStrings.fieldRequired;
-                        if (v.trim().length < 2) return 'Name must be at least 2 characters';
+                        if (v.trim().length < 2) return AppStrings.nameTooShort;
                         return null;
                       },
                     ),
@@ -88,7 +88,7 @@ class AddEditMemberView extends GetView<MemberController> {
                     const SizedBox(height: 32),
 
                     Obx(() => CustomButton(
-                          label: isEditing ? 'Update Member' : 'Add Member',
+                          label: isEditing ? AppStrings.updateMemberBtn : AppStrings.addMemberBtn,
                           isLoading: controller.isLoading.value,
                           icon: isEditing ? Icons.save : Icons.person_add,
                           onPressed: () async {
@@ -114,7 +114,7 @@ class AddEditMemberView extends GetView<MemberController> {
                     if (isEditing) ...[
                       const SizedBox(height: 12),
                       CustomButton(
-                        label: 'Delete Member',
+                        label: AppStrings.deleteMemberBtn,
                         outlined: true,
                         color: AppColors.error,
                         icon: Icons.delete_outline,

@@ -8,4 +8,8 @@ abstract class AppRoutes {
   static const addEditStatement = '/statements/add-edit';
   static const monthlySummary = '/summary';
   static const reports = '/reports';
+  static const dailyMeal = '/daily-meal';
+  static const addDailyMeal = '/daily-meal/add';
+  static const allMemberMeal = '/daily-meal/all';
+  static const mealChart = '/daily-meal/chart';
 }

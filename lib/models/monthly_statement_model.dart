@@ -96,7 +96,7 @@ class MonthlyStatementModel {
       totalDue: (map[FirestoreKeys.totalDue] ?? 0).toDouble(),
       totalCost: (map[FirestoreKeys.totalCost] ?? 0).toDouble(),
       netAmount: (map[FirestoreKeys.netAmount] ?? 0).toDouble(),
-      status: map[FirestoreKeys.status] ?? AppStrings.settled,
+      status: AppUtils.localizeStatus(map[FirestoreKeys.status] ?? AppStrings.settled),
     );
   }
 

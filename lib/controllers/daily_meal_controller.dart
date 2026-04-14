@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import '../core/constants/app_constants.dart';
 import '../core/utils/app_utils.dart';
 import '../models/daily_meal_model.dart';
 import '../models/member_model.dart';
@@ -8,27 +8,47 @@ import '../services/firestore_service.dart';
 class DailyMealController extends GetxController {
   final FirestoreService _db = FirestoreService();
 
+  // Daily view
   final meals = <DailyMealModel>[].obs;
   final members = <MemberModel>[].obs;
   final isLoading = false.obs;
-
   final selectedDate = DateTime.now().obs;
 
-  // Per-member meal totals for the current month (memberId → total meals)
-  final monthlyTotals = <String, double>{}.obs;
+  // Monthly all-members summary
+  final allMonthlyMeals = <DailyMealModel>[].obs;
+  final summaryMonth = DateTime.now().month.obs;
+  final summaryYear = DateTime.now().year.obs;
+  final isSummaryLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     _loadMembers();
     _listenToDate(selectedDate.value);
-    ever(selectedDate, (date) => _listenToDate(date as DateTime));
+    ever(selectedDate, _listenToDate);
+    ever(summaryMonth, (_) => _listenToMonthlyAll());
+    ever(summaryYear, (_) => _listenToMonthlyAll());
+    _listenToMonthlyAll();
   }
 
   void _listenToDate(DateTime date) {
     _db.dailyMealsStream(date).listen(
-      (list) => meals.value = list,
-      onError: (e) => AppUtils.showError('Failed to load meals: $e'),
+      (data) => meals.value = data,
+      onError: (e) => AppUtils.showError('খাবার লোড করতে সমস্যা হয়েছে।'),
+    );
+  }
+
+  void _listenToMonthlyAll() {
+    isSummaryLoading.value = true;
+    _db.allMealsForMonthStream(summaryMonth.value, summaryYear.value).listen(
+      (data) {
+        allMonthlyMeals.value = data;
+        isSummaryLoading.value = false;
+      },
+      onError: (e) {
+        isSummaryLoading.value = false;
+        AppUtils.showError('মাসিক খাবার লোড করতে সমস্যা হয়েছে।');
+      },
     );
   }
 
@@ -36,7 +56,7 @@ class DailyMealController extends GetxController {
     try {
       members.value = await _db.getMembers();
     } catch (e) {
-      AppUtils.showError('Failed to load members');
+      AppUtils.showError('সদস্য লোড করতে সমস্যা হয়েছে।');
     }
   }
 
@@ -46,11 +66,14 @@ class DailyMealController extends GetxController {
 
   void goToNextDay() {
     final tomorrow = selectedDate.value.add(const Duration(days: 1));
-    if (tomorrow.isAfter(DateTime.now())) return; // cannot go to future
-    selectedDate.value = tomorrow;
+    if (tomorrow.isBefore(DateTime.now().add(const Duration(days: 1)))) {
+      selectedDate.value = tomorrow;
+    }
   }
 
-  void goToToday() => selectedDate.value = DateTime.now();
+  void goToToday() {
+    selectedDate.value = DateTime.now();
+  }
 
   bool get isToday {
     final now = DateTime.now();
@@ -58,10 +81,15 @@ class DailyMealController extends GetxController {
     return d.year == now.year && d.month == now.month && d.day == now.day;
   }
 
-  String get formattedDate =>
-      DateFormat('EEEE, dd MMM yyyy').format(selectedDate.value);
+  String get formattedDate {
+    final d = selectedDate.value;
+    final monthName = AppConstants.months[d.month - 1];
+    return '${d.day} $monthName ${d.year}';
+  }
 
-  /// Returns this member's entry for the selected date, or null
+  void setSummaryMonth(int m) => summaryMonth.value = m;
+  void setSummaryYear(int y) => summaryYear.value = y;
+
   DailyMealModel? mealForMember(String memberId) {
     try {
       return meals.firstWhere((m) => m.memberId == memberId);
@@ -70,46 +98,47 @@ class DailyMealController extends GetxController {
     }
   }
 
-  /// Save (add or update) a member's meal for the selected date
   Future<bool> saveMeal({
     required MemberModel member,
     required double morning,
     required double afternoon,
     required double night,
   }) async {
-    if (morning + afternoon + night == 0) {
-      AppUtils.showError('Please add at least one meal');
+    if (morning == 0 && afternoon == 0 && night == 0) {
+      AppUtils.showError(AppStrings.atLeastOneMeal);
       return false;
     }
 
     isLoading.value = true;
     try {
-      final day = DailyMealModel.dayKey(selectedDate.value);
-      final existing = await _db.getDailyMeal(member.id, day);
-
-      final newMeal = DailyMealModel(
+      final date = DateTime(
+        selectedDate.value.year,
+        selectedDate.value.month,
+        selectedDate.value.day,
+      );
+      final existing = await _db.getDailyMeal(member.id, date);
+      final meal = DailyMealModel(
         id: existing?.id ?? '',
         memberId: member.id,
         memberName: member.name,
-        date: day,
-        day: day.day,
-        month: day.month,
-        year: day.year,
+        date: date,
+        day: date.day,
+        month: date.month,
+        year: date.year,
         morning: morning,
         afternoon: afternoon,
         night: night,
       );
 
       if (existing == null) {
-        await _db.addDailyMeal(newMeal);
+        await _db.addDailyMeal(meal);
       } else {
-        await _db.updateDailyMeal(newMeal.copyWith(id: existing.id));
+        await _db.updateDailyMeal(meal);
       }
-
-      AppUtils.showSuccess('Meal saved for ${member.name}');
+      AppUtils.showSuccess('${member.name} এর খাবার সংরক্ষণ হয়েছে');
       return true;
     } catch (e) {
-      AppUtils.showError('Failed to save meal: $e');
+      AppUtils.showError('খাবার সংরক্ষণ করতে সমস্যা হয়েছে।');
       return false;
     } finally {
       isLoading.value = false;
@@ -118,28 +147,31 @@ class DailyMealController extends GetxController {
 
   Future<void> deleteMeal(DailyMealModel meal) async {
     final confirmed = await AppUtils.showConfirmDialog(
-      title: 'Remove Meal',
-      message: 'Remove meal entry for "${meal.memberName}"?',
+      title: AppStrings.removeMeal,
+      message: '"${meal.memberName}" এর এই দিনের খাবার এন্ট্রি মুছে ফেলবেন?',
     );
     if (!confirmed) return;
 
     isLoading.value = true;
     try {
       await _db.deleteDailyMeal(meal.id);
-      AppUtils.showSuccess('Meal entry removed');
+      AppUtils.showSuccess(AppStrings.mealEntryRemoved);
     } catch (e) {
-      AppUtils.showError('Failed to remove meal: $e');
+      AppUtils.showError('এন্ট্রি মুছতে সমস্যা হয়েছে।');
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// Get the total consumed meals for a member in the selected month/year
-  Future<double> getMonthlyTotal(String memberId) async {
-    return _db.getMemberMonthlyMealTotal(
-      memberId,
-      selectedDate.value.month,
-      selectedDate.value.year,
-    );
+  Future<double> getMonthlyTotal(String memberId, int month, int year) async {
+    return _db.getMemberMonthlyMealTotal(memberId, month, year);
+  }
+
+  Map<String, List<DailyMealModel>> get mealsByMember {
+    final map = <String, List<DailyMealModel>>{};
+    for (final meal in allMonthlyMeals) {
+      map.putIfAbsent(meal.memberName, () => []).add(meal);
+    }
+    return map;
   }
 }

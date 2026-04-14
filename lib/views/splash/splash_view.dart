@@ -100,7 +100,7 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Meal • Deposit • Expense Tracker',
+                  AppStrings.appTagline,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 14,
