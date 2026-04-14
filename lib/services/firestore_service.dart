@@ -184,6 +184,25 @@ class FirestoreService {
     return total;
   }
 
+  /// Real-time stream: ALL members' daily meals for an entire month
+  Stream<List<DailyMealModel>> allMealsForMonthStream(int month, int year) {
+    return _dailyMealsCol
+        .where('month', isEqualTo: month)
+        .where('year', isEqualTo: year)
+        .snapshots()
+        .map((snap) {
+      final list = snap.docs
+          .map((doc) => DailyMealModel.fromMap(doc.data(), doc.id))
+          .toList();
+      // Sort by day asc, then memberName
+      list.sort((a, b) {
+        final dayCmp = a.day.compareTo(b.day);
+        return dayCmp != 0 ? dayCmp : a.memberName.toLowerCase().compareTo(b.memberName.toLowerCase());
+      });
+      return list;
+    });
+  }
+
   // ─── Dashboard aggregates ────────────────────────────────────────────────────
 
   Stream<List<MonthlyStatementModel>> allStatementsStream() {

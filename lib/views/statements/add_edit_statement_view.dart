@@ -6,6 +6,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/utils/app_utils.dart';
 import '../../models/member_model.dart';
 import '../../models/monthly_statement_model.dart';
+import '../../services/firestore_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/loading_overlay.dart';
@@ -76,7 +77,7 @@ class AddEditStatementView extends GetView<StatementController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Member & Period ─────────────────────────────────────
-                    _SectionHeader(title: 'Member & Period'),
+                    _SectionHeader(title: AppStrings.memberPeriod),
                     Card(
                       margin: EdgeInsets.zero,
                       child: Padding(
@@ -87,7 +88,7 @@ class AddEditStatementView extends GetView<StatementController> {
                             Obx(() => DropdownButtonFormField<MemberModel>(
                                   initialValue: selectedMember.value,
                                   decoration: const InputDecoration(
-                                    labelText: 'Select Member',
+                                    labelText: AppStrings.selectMember,
                                     prefixIcon: Icon(Icons.person_outline),
                                   ),
                                   items: controller.members
@@ -98,7 +99,7 @@ class AddEditStatementView extends GetView<StatementController> {
                                       .toList(),
                                   onChanged: (m) => selectedMember.value = m,
                                   validator: (_) =>
-                                      selectedMember.value == null ? 'Please select a member' : null,
+                                      selectedMember.value == null ? AppStrings.pleaseSelectMember : null,
                                 )),
                             const SizedBox(height: 16),
 
@@ -107,7 +108,7 @@ class AddEditStatementView extends GetView<StatementController> {
                                 Expanded(
                                   child: Obx(() => DropdownButtonFormField<int>(
                                         initialValue: selectedMonth.value,
-                                        decoration: const InputDecoration(labelText: 'Month'),
+                                        decoration: const InputDecoration(labelText: AppStrings.month),
                                         items: List.generate(
                                           12,
                                           (i) => DropdownMenuItem(
@@ -124,7 +125,7 @@ class AddEditStatementView extends GetView<StatementController> {
                                 Expanded(
                                   child: Obx(() => DropdownButtonFormField<int>(
                                         initialValue: selectedYear.value,
-                                        decoration: const InputDecoration(labelText: 'Year'),
+                                        decoration: const InputDecoration(labelText: AppStrings.year),
                                         items: AppConstants.years
                                             .map((y) => DropdownMenuItem(
                                                   value: y,
@@ -146,13 +147,61 @@ class AddEditStatementView extends GetView<StatementController> {
                     const SizedBox(height: 16),
 
                     // ── Input Fields ────────────────────────────────────────
-                    _SectionHeader(title: 'Meal Details'),
+                    _SectionHeader(title: AppStrings.mealDetails),
                     Card(
                       margin: EdgeInsets.zero,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           children: [
+                            // Auto-fill hint banner
+                            Obx(() {
+                              final member = selectedMember.value;
+                              if (member == null || isEditing) return const SizedBox.shrink();
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.teal.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.teal.withOpacity(0.3)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.restaurant_menu, color: Colors.teal, size: 18),
+                                    const SizedBox(width: 8),
+                                    const Expanded(
+                                      child: Text(
+                                        AppStrings.autoFillHint,
+                                        style: TextStyle(fontSize: 12, color: Colors.teal),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        final db = FirestoreService();
+                                        final total = await db.getMemberMonthlyMealTotal(
+                                          member.id,
+                                          selectedMonth.value,
+                                          selectedYear.value,
+                                        );
+                                        consumedMealCtrl.text = total.toStringAsFixed(1);
+                                        updateCalc();
+                                        AppUtils.showSuccess(
+                                          '${total.toStringAsFixed(1)} বার খাবার পূরণ হয়েছে',
+                                        );
+                                      },
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.teal,
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        minimumSize: Size.zero,
+                                      ),
+                                      child: const Text(AppStrings.autoFill, style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+
                             Row(
                               children: [
                                 Expanded(
@@ -165,7 +214,7 @@ class AddEditStatementView extends GetView<StatementController> {
                                     onChanged: (_) => updateCalc(),
                                     validator: (v) {
                                       if (v == null || v.isEmpty) return AppStrings.fieldRequired;
-                                      if (double.tryParse(v) == null) return 'Invalid number';
+                                      if (double.tryParse(v) == null) return AppStrings.invalidNumber;
                                       return null;
                                     },
                                   ),
@@ -181,7 +230,7 @@ class AddEditStatementView extends GetView<StatementController> {
                                     onChanged: (_) => updateCalc(),
                                     validator: (v) {
                                       if (v == null || v.isEmpty) return AppStrings.fieldRequired;
-                                      if (double.tryParse(v) == null) return 'Invalid number';
+                                      if (double.tryParse(v) == null) return AppStrings.invalidNumber;
                                       return null;
                                     },
                                   ),
@@ -197,28 +246,28 @@ class AddEditStatementView extends GetView<StatementController> {
                               prefixIcon: const Icon(Icons.soup_kitchen_outlined),
                               onChanged: (_) => updateCalc(),
                               validator: (v) {
-                                if (v == null || v.isEmpty) return AppStrings.fieldRequired;
-                                if (double.tryParse(v) == null) return 'Invalid number';
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 14),
-                            CustomTextField(
-                              label: AppStrings.depositMoney,
+                              if (v == null || v.isEmpty) return AppStrings.fieldRequired;
+                              if (double.tryParse(v) == null) return AppStrings.invalidNumber;
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 14),
+                          CustomTextField(
+                            label: AppStrings.depositMoney,
                               controller: depositCtrl,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
                               prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
                               onChanged: (_) => updateCalc(),
                               validator: (v) {
-                                if (v == null || v.isEmpty) return AppStrings.fieldRequired;
-                                if (double.tryParse(v) == null) return 'Invalid number';
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 14),
-                            CustomTextField(
-                              label: AppStrings.eidBonus,
+                              if (v == null || v.isEmpty) return AppStrings.fieldRequired;
+                              if (double.tryParse(v) == null) return AppStrings.invalidNumber;
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 14),
+                          CustomTextField(
+                            label: AppStrings.eidBonus,
                               controller: eidBonusCtrl,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
@@ -240,7 +289,7 @@ class AddEditStatementView extends GetView<StatementController> {
                     const SizedBox(height: 16),
 
                     // ── Auto Calculation Preview ─────────────────────────────
-                    _SectionHeader(title: 'Calculation Preview'),
+                    _SectionHeader(title: AppStrings.calcPreview),
                     Obx(() => Card(
                           margin: EdgeInsets.zero,
                           child: Padding(
@@ -255,13 +304,13 @@ class AddEditStatementView extends GetView<StatementController> {
                                 _CalcRow(
                                   label: AppStrings.totalDue,
                                   value: AppUtils.formatCurrency(controller.totalDue),
-                                  hint: 'Meal cost + Cook cost',
+                                  hint: 'খাবারের মূল্য + রান্নার খরচ',
                                   highlight: true,
                                 ),
                                 _CalcRow(
                                   label: AppStrings.totalCost,
                                   value: AppUtils.formatCurrency(controller.totalCost),
-                                  hint: 'Total due + Eid bonus',
+                                  hint: 'মোট বকেয়া + ঈদ বোনাস',
                                   highlight: true,
                                 ),
                                 const Divider(height: 20),
@@ -269,7 +318,7 @@ class AddEditStatementView extends GetView<StatementController> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text(
-                                      'Net Amount',
+                                      AppStrings.netAmount,
                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                                     ),
                                     Column(
@@ -312,13 +361,13 @@ class AddEditStatementView extends GetView<StatementController> {
 
                     // ── Save Button ──────────────────────────────────────────
                     Obx(() => CustomButton(
-                          label: isEditing ? 'Update Statement' : 'Save Statement',
+                          label: isEditing ? AppStrings.updateStatement : AppStrings.saveStatement,
                           isLoading: controller.isLoading.value,
                           icon: Icons.save,
                           onPressed: () async {
                             if (!formKey.currentState!.validate()) return;
                             if (selectedMember.value == null) {
-                              AppUtils.showError('Please select a member');
+                              AppUtils.showError(AppStrings.pleaseSelectMember);
                               return;
                             }
 

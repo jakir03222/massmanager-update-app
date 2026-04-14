@@ -69,7 +69,7 @@ class ReportView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${summary.monthName} ${summary.year} Report',
+                          '${summary.monthName} ${summary.year} রিপোর্ট',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class ReportView extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${summary.totalMembers} members · Generated ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
+                          '${summary.totalMembers} সদস্য · তৈরি: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
                           style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                         ),
                       ],
@@ -87,7 +87,7 @@ class ReportView extends StatelessWidget {
                   Expanded(
                     child: statements.isEmpty
                         ? const EmptyState(
-                            message: 'No data to generate report.\nAdd statements first.',
+                            message: AppStrings.noReportData,
                             icon: Icons.picture_as_pdf_outlined,
                           )
                         : _ReportPreview(summary: summary, statements: statements),
@@ -99,7 +99,7 @@ class ReportView extends StatelessWidget {
                       child: ElevatedButton.icon(
                         onPressed: () => _generateAndSharePdf(summary, statements),
                         icon: const Icon(Icons.share_outlined),
-                        label: const Text('Share / Download PDF'),
+                        label: const Text(AppStrings.shareDownloadPdf),
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 52),
                         ),
@@ -139,17 +139,17 @@ class _ReportPreview extends StatelessWidget {
       child: Column(
         children: [
           // Summary table
-          _TableSection(
-            title: 'Monthly Summary',
+            _TableSection(
+            title: AppStrings.monthlySummaryTitle,
             rows: [
-              ['Total Members', '${summary.totalMembers}'],
-              ['Total Deposit', AppUtils.formatCurrency(summary.totalDeposit)],
-              ['Total Meal Cost', AppUtils.formatCurrency(summary.totalCostOfMeal)],
-              ['Total Cook Cost', AppUtils.formatCurrency(summary.totalCookCost)],
-              ['Total Eid Bonus', AppUtils.formatCurrency(summary.totalEidBonus)],
-              ['Total Due', AppUtils.formatCurrency(summary.totalDue)],
-              ['Total Cost', AppUtils.formatCurrency(summary.totalCost)],
-              ['Net Balance', AppUtils.formatCurrency(summary.totalNetAmount.abs())],
+              [AppStrings.totalMembers, '${summary.totalMembers}'],
+              [AppStrings.totalDeposit, AppUtils.formatCurrency(summary.totalDeposit)],
+              ['মোট খাবারের মূল্য', AppUtils.formatCurrency(summary.totalCostOfMeal)],
+              ['মোট রান্নার খরচ', AppUtils.formatCurrency(summary.totalCookCost)],
+              ['মোট ঈদ বোনাস', AppUtils.formatCurrency(summary.totalEidBonus)],
+              [AppStrings.totalDue, AppUtils.formatCurrency(summary.totalDue)],
+              [AppStrings.totalCost, AppUtils.formatCurrency(summary.totalCost)],
+              [AppStrings.netBalance, AppUtils.formatCurrency(summary.totalNetAmount.abs())],
             ],
           ),
           const SizedBox(height: 16),
@@ -163,7 +163,7 @@ class _ReportPreview extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Member Statements',
+                    AppStrings.memberStatements,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
@@ -179,15 +179,15 @@ class _ReportPreview extends StatelessWidget {
                       ),
                       dataTextStyle: const TextStyle(fontSize: 11),
                       columns: const [
-                        DataColumn(label: Text('Member')),
-                        DataColumn(label: Text('Meal'), numeric: true),
-                        DataColumn(label: Text('Rate'), numeric: true),
-                        DataColumn(label: Text('Cost'), numeric: true),
-                        DataColumn(label: Text('Cook'), numeric: true),
-                        DataColumn(label: Text('Deposit'), numeric: true),
-                        DataColumn(label: Text('Total'), numeric: true),
-                        DataColumn(label: Text('Net'), numeric: true),
-                        DataColumn(label: Text('Status')),
+                        DataColumn(label: Text(AppStrings.colMember)),
+                        DataColumn(label: Text(AppStrings.colMeal), numeric: true),
+                        DataColumn(label: Text(AppStrings.colRate), numeric: true),
+                        DataColumn(label: Text(AppStrings.colCost), numeric: true),
+                        DataColumn(label: Text(AppStrings.colCook), numeric: true),
+                        DataColumn(label: Text(AppStrings.depositMoney), numeric: true),
+                        DataColumn(label: Text(AppStrings.colTotal), numeric: true),
+                        DataColumn(label: Text(AppStrings.colNet), numeric: true),
+                        DataColumn(label: Text(AppStrings.status)),
                       ],
                       rows: statements.map((s) {
                         final statusColor = AppUtils.statusColor(s.status);
@@ -339,7 +339,7 @@ Future<pw.Document> _buildPdf(
                     ),
                   ),
                   pw.Text(
-                    'Monthly Statement Report',
+                    AppStrings.monthlyReport,
                     style: pw.TextStyle(fontSize: 12, color: grey),
                   ),
                 ],
@@ -352,7 +352,7 @@ Future<pw.Document> _buildPdf(
                     style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
                   ),
                   pw.Text(
-                    'Generated: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
+                    '${AppStrings.generatedOn}: ${DateFormat('dd MMM yyyy').format(DateTime.now())}',
                     style: pw.TextStyle(fontSize: 10, color: grey),
                   ),
                 ],
@@ -367,11 +367,11 @@ Future<pw.Document> _buildPdf(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(
-            'Mess Manager — Confidential',
+            AppStrings.confidential,
             style: pw.TextStyle(fontSize: 9, color: grey),
           ),
           pw.Text(
-            'Page ${context.pageNumber} of ${context.pagesCount}',
+            '${AppStrings.page} ${context.pageNumber} ${AppStrings.of} ${context.pagesCount}',
             style: pw.TextStyle(fontSize: 9, color: grey),
           ),
         ],
@@ -387,18 +387,18 @@ Future<pw.Document> _buildPdf(
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(
-                'Monthly Summary',
-                style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: primaryColor),
-              ),
+            pw.Text(
+              AppStrings.monthlySummaryTitle,
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: primaryColor),
+            ),
               pw.SizedBox(height: 8),
               pw.Row(
                 children: [
-                  _pdfSummaryItem('Members', '${summary.totalMembers}', primaryColor),
-                  _pdfSummaryItem('Total Deposit', AppUtils.formatCurrency(summary.totalDeposit), successColor),
-                  _pdfSummaryItem('Total Cost', AppUtils.formatCurrency(summary.totalCost), errorColor),
-                  _pdfSummaryItem(
-                    'Net Balance',
+              _pdfSummaryItem(AppStrings.totalMembers, '${summary.totalMembers}', primaryColor),
+              _pdfSummaryItem(AppStrings.totalDeposit, AppUtils.formatCurrency(summary.totalDeposit), successColor),
+              _pdfSummaryItem(AppStrings.totalCost, AppUtils.formatCurrency(summary.totalCost), errorColor),
+              _pdfSummaryItem(
+                    AppStrings.netBalance,
                     AppUtils.formatCurrency(summary.totalNetAmount.abs()),
                     summary.totalNetAmount >= 0 ? successColor : errorColor,
                   ),
@@ -411,7 +411,7 @@ Future<pw.Document> _buildPdf(
         pw.SizedBox(height: 16),
 
         pw.Text(
-          'Member Statements',
+          AppStrings.memberStatements,
           style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold),
         ),
         pw.SizedBox(height: 8),
@@ -419,16 +419,16 @@ Future<pw.Document> _buildPdf(
         // Statement table
         pw.TableHelper.fromTextArray(
           headers: [
-            'Member',
-            'Meal',
-            'Rate',
-            'Meal Cost',
-            'Cook Cost',
-            'Eid Bonus',
-            'Deposit',
-            'Total Cost',
-            'Net',
-            'Status',
+            AppStrings.colMember,
+            AppStrings.colMeal,
+            AppStrings.colRate,
+            AppStrings.costOfMeal,
+            AppStrings.cookCost,
+            AppStrings.eidBonus,
+            AppStrings.depositMoney,
+            AppStrings.totalCost,
+            AppStrings.colNet,
+            AppStrings.status,
           ],
           data: statements.map((s) => [
             s.memberName,
@@ -478,16 +478,13 @@ Future<pw.Document> _buildPdf(
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Calculation Formula:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+              pw.Text(AppStrings.calcFormula, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
               pw.SizedBox(height: 4),
-              pw.Text('• Meal Cost = Consumed Meals × Meal Rate', style: const pw.TextStyle(fontSize: 9)),
-              pw.Text('• Total Due = Meal Cost + Cook Cost', style: const pw.TextStyle(fontSize: 9)),
-              pw.Text('• Total Cost = Total Due + Eid Bonus', style: const pw.TextStyle(fontSize: 9)),
-              pw.Text('• Net Amount = Deposit - Total Cost', style: const pw.TextStyle(fontSize: 9)),
-              pw.Text(
-                '• Positive Net = Receivable | Negative Net = Payable | Zero = Settled',
-                style: const pw.TextStyle(fontSize: 9),
-              ),
+              pw.Text(AppStrings.formulaLine1, style: const pw.TextStyle(fontSize: 9)),
+              pw.Text(AppStrings.formulaLine2, style: const pw.TextStyle(fontSize: 9)),
+              pw.Text(AppStrings.formulaLine3, style: const pw.TextStyle(fontSize: 9)),
+              pw.Text(AppStrings.formulaLine4, style: const pw.TextStyle(fontSize: 9)),
+              pw.Text(AppStrings.formulaLine5, style: const pw.TextStyle(fontSize: 9)),
             ],
           ),
         ),

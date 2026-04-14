@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../core/constants/app_constants.dart';
 import '../core/utils/app_utils.dart';
 import '../models/member_model.dart';
 import '../services/firestore_service.dart';
@@ -24,7 +25,7 @@ class MemberController extends GetxController {
         members.value = data;
         _filterMembers();
       },
-      onError: (e) => AppUtils.showError('Failed to load members: $e'),
+      onError: (e) => AppUtils.showError('সদস্য লোড করতে সমস্যা হয়েছে।'),
     );
   }
 
@@ -53,10 +54,10 @@ class MemberController extends GetxController {
         createdAt: DateTime.now(),
       );
       await _firestoreService.addMember(member);
-      AppUtils.showSuccess('Member added successfully');
+      AppUtils.showSuccess(AppStrings.memberAdded);
       return true;
     } catch (e) {
-      AppUtils.showError('Failed to add member: $e');
+      AppUtils.showError('সদস্য যোগ করতে সমস্যা হয়েছে।');
       return false;
     } finally {
       isLoading.value = false;
@@ -68,10 +69,10 @@ class MemberController extends GetxController {
     try {
       final updated = member.copyWith(name: name.trim(), phone: phone.trim());
       await _firestoreService.updateMember(updated);
-      AppUtils.showSuccess('Member updated successfully');
+      AppUtils.showSuccess(AppStrings.memberUpdated);
       return true;
     } catch (e) {
-      AppUtils.showError('Failed to update member: $e');
+      AppUtils.showError('সদস্য আপডেট করতে সমস্যা হয়েছে।');
       return false;
     } finally {
       isLoading.value = false;
@@ -80,17 +81,17 @@ class MemberController extends GetxController {
 
   Future<void> deleteMember(MemberModel member) async {
     final confirmed = await AppUtils.showConfirmDialog(
-      title: 'Delete Member',
-      message: 'Delete "${member.name}"? This cannot be undone.',
+      title: AppStrings.deleteMember,
+      message: '"${member.name}" কে মুছে ফেলবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।',
     );
     if (!confirmed) return;
 
     isLoading.value = true;
     try {
       await _firestoreService.deleteMember(member.id);
-      AppUtils.showSuccess('Member deleted');
+      AppUtils.showSuccess(AppStrings.memberDeleted);
     } catch (e) {
-      AppUtils.showError('Failed to delete member: $e');
+      AppUtils.showError('সদস্য মুছতে সমস্যা হয়েছে।');
     } finally {
       isLoading.value = false;
     }

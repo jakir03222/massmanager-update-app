@@ -1,9 +1,14 @@
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/daily_meal_controller.dart';
 import '../controllers/member_controller.dart';
 import '../controllers/statement_controller.dart';
 import '../controllers/summary_controller.dart';
 import '../views/auth/login_view.dart';
+import '../views/daily_meal/add_daily_meal_view.dart';
+import '../views/daily_meal/all_member_meal_view.dart';
+import '../views/daily_meal/daily_meal_view.dart';
+import '../views/daily_meal/meal_chart_view.dart';
 import '../views/dashboard/dashboard_view.dart';
 import '../views/members/add_edit_member_view.dart';
 import '../views/members/member_list_view.dart';
@@ -76,6 +81,37 @@ class AppPages {
       page: () => const ReportView(),
       binding: BindingsBuilder(() {
         Get.lazyPut<SummaryController>(() => SummaryController(), fenix: true);
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.dailyMeal,
+      page: () => const DailyMealView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<DailyMealController>(() => DailyMealController(), fenix: true);
+        Get.lazyPut<MemberController>(() => MemberController(), fenix: true);
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.addDailyMeal,
+      page: () => const AddDailyMealView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<DailyMealController>(() => DailyMealController(), fenix: true);
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.allMemberMeal,
+      page: () => const AllMemberMealView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<DailyMealController>(() => DailyMealController(), fenix: true);
+        Get.lazyPut<MemberController>(() => MemberController(), fenix: true);
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.mealChart,
+      page: () => const MealChartView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<DailyMealController>(() => DailyMealController(), fenix: true);
+        Get.lazyPut<MemberController>(() => MemberController(), fenix: true);
       }),
     ),
   ];

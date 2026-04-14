@@ -70,7 +70,7 @@ class StatementCard extends StatelessWidget {
                           child: Row(children: [
                             Icon(Icons.edit_outlined, size: 18),
                             SizedBox(width: 8),
-                            Text('Edit'),
+                            Text(AppStrings.edit),
                           ]),
                         ),
                       if (onDelete != null)
@@ -79,7 +79,7 @@ class StatementCard extends StatelessWidget {
                           child: Row(children: [
                             Icon(Icons.delete_outline, size: 18, color: AppColors.error),
                             SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: AppColors.error)),
+                            Text(AppStrings.delete, style: TextStyle(color: AppColors.error)),
                           ]),
                         ),
                     ],
@@ -97,14 +97,14 @@ class StatementCard extends StatelessWidget {
             const Divider(height: 20),
 
             // Calculation rows
-            _InfoRow(label: 'Consumed Meal', value: '${AppUtils.formatMeal(statement.consumedMeal)} meals'),
-            _InfoRow(label: 'Meal Rate', value: AppUtils.formatCurrency(statement.mealRate)),
+            _InfoRow(label: AppStrings.consumedMeal, value: '${AppUtils.formatMeal(statement.consumedMeal)} বার'),
+            _InfoRow(label: AppStrings.mealRate, value: AppUtils.formatCurrency(statement.mealRate)),
             _InfoRow(label: AppStrings.costOfMeal, value: AppUtils.formatCurrency(statement.costOfMeal)),
-            _InfoRow(label: 'Cook Cost', value: AppUtils.formatCurrency(statement.cookCost)),
+            _InfoRow(label: AppStrings.cookCost, value: AppUtils.formatCurrency(statement.cookCost)),
             _InfoRow(label: AppStrings.totalDue, value: AppUtils.formatCurrency(statement.totalDue), isBold: true),
-            _InfoRow(label: 'Eid Bonus', value: AppUtils.formatCurrency(statement.eidBonus)),
+            _InfoRow(label: AppStrings.eidBonus, value: AppUtils.formatCurrency(statement.eidBonus)),
             _InfoRow(label: AppStrings.totalCost, value: AppUtils.formatCurrency(statement.totalCost), isBold: true),
-            _InfoRow(label: 'Deposit', value: AppUtils.formatCurrency(statement.depositMoney)),
+            _InfoRow(label: AppStrings.depositMoney, value: AppUtils.formatCurrency(statement.depositMoney)),
 
             const Divider(height: 16),
 
@@ -112,7 +112,7 @@ class StatementCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Net Amount',
+                  AppStrings.netAmount,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
                 Text(
@@ -136,7 +136,7 @@ class StatementCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Note: ${statement.remarks}',
+                  'মন্তব্য: ${statement.remarks}',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,

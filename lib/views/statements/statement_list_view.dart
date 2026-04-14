@@ -18,14 +18,14 @@ class StatementListView extends GetView<StatementController> {
           IconButton(
             icon: const Icon(Icons.picture_as_pdf_outlined),
             onPressed: () => Get.toNamed(AppRoutes.reports),
-            tooltip: 'Export PDF',
+            tooltip: AppStrings.exportPdf,
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Get.toNamed(AppRoutes.addEditStatement),
         icon: const Icon(Icons.add),
-        label: const Text('Add Statement'),
+        label: const Text(AppStrings.addStatement),
       ),
       body: Column(
         children: [
@@ -71,7 +71,7 @@ class StatementListView extends GetView<StatementController> {
                             items: List.generate(12, (i) => i + 1),
                             labelBuilder: (m) => AppConstants.months[m - 1],
                             onChanged: controller.setMonth,
-                            hint: 'Month',
+                            hint: AppStrings.month,
                           )),
                     ),
                     const SizedBox(width: 8),
@@ -81,7 +81,7 @@ class StatementListView extends GetView<StatementController> {
                             items: AppConstants.years,
                             labelBuilder: (y) => '$y',
                             onChanged: controller.setYear,
-                            hint: 'Year',
+                            hint: AppStrings.year,
                           )),
                     ),
                   ],
@@ -97,7 +97,7 @@ class StatementListView extends GetView<StatementController> {
                 child: Row(
                   children: [
                     Text(
-                      '${controller.filteredStatements.length} statement(s) — '
+                      '${controller.filteredStatements.length} বিবরণী — '
                       '${AppConstants.months[controller.selectedMonth.value - 1]} ${controller.selectedYear.value}',
                       style: const TextStyle(
                         fontSize: 12,
@@ -114,13 +114,13 @@ class StatementListView extends GetView<StatementController> {
               if (controller.filteredStatements.isEmpty) {
                 return EmptyState(
                   message: controller.searchQuery.value.isEmpty
-                      ? 'No statements for ${AppConstants.months[controller.selectedMonth.value - 1]} ${controller.selectedYear.value}.\nTap + to add one.'
-                      : 'No results for "${controller.searchQuery.value}"',
+                      ? '${AppConstants.months[controller.selectedMonth.value - 1]} ${controller.selectedYear.value} এ কোনো বিবরণী নেই।\nযোগ করতে + ট্যাপ করুন।'
+                      : '"${controller.searchQuery.value}" এর জন্য কোনো ফলাফল নেই',
                   icon: Icons.receipt_long_outlined,
                   onAction: controller.searchQuery.value.isEmpty
                       ? () => Get.toNamed(AppRoutes.addEditStatement)
                       : null,
-                  actionLabel: 'Add Statement',
+                  actionLabel: AppStrings.addStatement,
                 );
               }
 

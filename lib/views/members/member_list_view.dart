@@ -33,7 +33,7 @@ class MemberListView extends GetView<MemberController> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Get.toNamed(AppRoutes.addEditMember),
         icon: const Icon(Icons.person_add),
-        label: const Text('Add Member'),
+        label: const Text(AppStrings.addMemberBtn),
       ),
       body: Column(
         children: [
@@ -72,13 +72,13 @@ class MemberListView extends GetView<MemberController> {
               if (controller.filteredMembers.isEmpty) {
                 return EmptyState(
                   message: controller.searchQuery.value.isEmpty
-                      ? 'No members yet.\nTap + to add the first member.'
-                      : 'No members found for "${controller.searchQuery.value}"',
+                      ? AppStrings.noMembers
+                      : '"${controller.searchQuery.value}" এর জন্য কোনো সদস্য পাওয়া যায়নি',
                   icon: Icons.people_outline,
                   onAction: controller.searchQuery.value.isEmpty
                       ? () => Get.toNamed(AppRoutes.addEditMember)
                       : null,
-                  actionLabel: 'Add Member',
+                  actionLabel: AppStrings.addMemberBtn,
                 );
               }
 
@@ -139,19 +139,19 @@ class _MemberTile extends StatelessWidget {
                   Text(member.phone, style: const TextStyle(fontSize: 12)),
                 ],
               )
-            : const Text('No phone', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            : const Text(AppStrings.noPhone, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
               icon: const Icon(Icons.edit_outlined, color: AppColors.primary, size: 20),
               onPressed: () => Get.toNamed(AppRoutes.addEditMember, arguments: member),
-              tooltip: 'Edit',
+              tooltip: AppStrings.edit,
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 20),
               onPressed: () => ctrl.deleteMember(member),
-              tooltip: 'Delete',
+              tooltip: AppStrings.delete,
             ),
           ],
         ),

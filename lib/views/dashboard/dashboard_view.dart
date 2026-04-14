@@ -71,7 +71,7 @@ class DashboardView extends StatelessWidget {
                               ),
                               Text(
                                 authCtrl.userEmail.value.isEmpty
-                                    ? 'Admin'
+                                    ? 'অ্যাডমিন'
                                     : authCtrl.userEmail.value,
                                 style: const TextStyle(
                                   color: Colors.white70,
@@ -88,7 +88,7 @@ class DashboardView extends StatelessWidget {
 
               const SizedBox(height: 24),
               const Text(
-                'Overview',
+                AppStrings.overview,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -113,28 +113,28 @@ class DashboardView extends StatelessWidget {
                   childAspectRatio: 1.4,
                   children: [
                     SummaryCard(
-                      title: 'Total Members',
+                      title: AppStrings.totalMembers,
                       value: '$memberCount',
                       icon: Icons.people_outline,
                       color: AppColors.primary,
                       onTap: () => Get.toNamed(AppRoutes.memberList),
                     ),
                     SummaryCard(
-                      title: 'Total Deposit',
+                      title: AppStrings.totalDeposit,
                       value: AppUtils.formatCurrency(totalDeposit),
                       icon: Icons.account_balance_wallet_outlined,
                       color: AppColors.success,
                       onTap: () => Get.toNamed(AppRoutes.statementList),
                     ),
                     SummaryCard(
-                      title: 'Total Expense',
+                      title: AppStrings.totalExpense,
                       value: AppUtils.formatCurrency(totalExpense),
                       icon: Icons.receipt_long_outlined,
                       color: AppColors.error,
                       onTap: () => Get.toNamed(AppRoutes.statementList),
                     ),
                     SummaryCard(
-                      title: 'Net Balance',
+                      title: AppStrings.netBalance,
                       value: AppUtils.formatCurrency(netBalance.abs()),
                       icon: netBalance >= 0 ? Icons.trending_up : Icons.trending_down,
                       color: netBalance >= 0 ? AppColors.success : AppColors.error,
@@ -145,7 +145,7 @@ class DashboardView extends StatelessWidget {
 
               const SizedBox(height: 24),
               const Text(
-                'Quick Access',
+                AppStrings.quickAccess,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -168,25 +168,43 @@ class _QuickActionGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final actions = [
       _QuickAction(
-        label: 'Members',
+        label: AppStrings.dailyMeals,
+        icon: Icons.restaurant_menu,
+        color: Colors.teal,
+        route: AppRoutes.dailyMeal,
+      ),
+      _QuickAction(
+        label: AppStrings.allMemberMeal,
+        icon: Icons.people_outlined,
+        color: Colors.teal,
+        route: AppRoutes.allMemberMeal,
+      ),
+      _QuickAction(
+        label: AppStrings.mealCharts,
+        icon: Icons.bar_chart,
+        color: Colors.deepPurple,
+        route: AppRoutes.mealChart,
+      ),
+      _QuickAction(
+        label: AppStrings.members,
         icon: Icons.people,
         color: AppColors.primary,
         route: AppRoutes.memberList,
       ),
       _QuickAction(
-        label: 'Statements',
+        label: AppStrings.statements,
         icon: Icons.receipt_long,
         color: AppColors.accent,
         route: AppRoutes.statementList,
       ),
       _QuickAction(
-        label: 'Summary',
+        label: AppStrings.summary,
         icon: Icons.bar_chart,
         color: AppColors.warning,
         route: AppRoutes.monthlySummary,
       ),
       _QuickAction(
-        label: 'PDF Report',
+        label: AppStrings.reports,
         icon: Icons.picture_as_pdf,
         color: AppColors.error,
         route: AppRoutes.reports,

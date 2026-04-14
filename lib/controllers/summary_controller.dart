@@ -43,7 +43,7 @@ class SummaryController extends GetxController {
         isLoading.value = false;
       },
       onError: (e) {
-        AppUtils.showError('Failed to load summary: $e');
+        AppUtils.showError('সারসংক্ষেপ লোড করতে সমস্যা হয়েছে।');
         isLoading.value = false;
       },
     );
