@@ -1,54 +1,23 @@
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'core/theme/app_theme.dart';
-import 'controllers/auth_controller.dart';
-import 'views/auth/login_view.dart';
-import 'views/home/main_shell.dart';
+import 'core/constants/app_constants.dart';
+import 'routes/app_pages.dart';
+import 'routes/app_routes.dart';
 
-/// App shell: theme and auth-gated home. Holds [AuthController].
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({super.key});
 
   @override
-  State<App> createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  late final AuthController _authController;
-
-  @override
-  void initState() {
-    super.initState();
-    _authController = AuthController();
-  }
-
-  @override
-  void dispose() {
-    _authController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mess Hisab',
+    return GetMaterialApp(
+      title: AppStrings.appName,
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      home: ListenableBuilder(
-        listenable: _authController,
-        builder: (context, _) {
-          if (_authController.loading && _authController.user == null) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (_authController.user == null) {
-            return LoginView(authController: _authController);
-          }
-          return MainShell(authController: _authController);
-        },
-      ),
+      initialRoute: AppRoutes.splash,
+      getPages: AppPages.pages,
+      defaultTransition: Transition.cupertino,
+      transitionDuration: const Duration(milliseconds: 250),
     );
   }
 }
